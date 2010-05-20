@@ -1,0 +1,21 @@
+<ui>
+  <menubar name='Menu'>
+    <menu action='FileMenu'>
+      <menuitem action='FileNew' always-show-image='true' />
+      <menuitem action='FileOpen' always-show-image='true' />
+      <menuitem action='FileClose' always-show-image='true' />
+      <separator/>
+      <menuitem action='FileQuit' always-show-image='true' />
+    </menu>
+    <menu action='HelpMenu'>
+      <menuitem action='HelpAbout' always-show-image='true' />
+    </menu>
+  </menubar>
+  <toolbar name='Tool'>
+    <toolitem action='Play'/>
+    <toolitem action='Pause'/>
+    <toolitem action='Stop'/>
+    <toolitem action='Rewind'/>
+    <toolitem action='Forward'/>
+  </toolbar>
+</ui>

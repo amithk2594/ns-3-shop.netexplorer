@@ -1,0 +1,7 @@
+def build(bld):
+    bld.create_model ([
+        'null-net-model.ui',
+    ], [
+        'null-net-model.h',
+        'null-net-model.cc'
+    ])

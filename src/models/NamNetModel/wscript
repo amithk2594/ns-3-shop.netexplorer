@@ -1,0 +1,10 @@
+def build(bld):
+    bld.create_model ([
+        'nam-net-model.ui',
+    ], [
+        'nam-net-model.h',
+        'nam-net-model.cc',
+        'nam-net-motion.h',
+        'nam-net-motion.cc',
+        'nam-images.h'
+    ])
