@@ -85,7 +85,7 @@ public:
   Edge (const Node &node1, const Node &node2);
   virtual ~Edge ();
 
-  void SetNodes (const Node &node1, const Node &node2);
+  inline void SetNodes (const Node &node1, const Node &node2);
 
 public:
   const Node *n1;

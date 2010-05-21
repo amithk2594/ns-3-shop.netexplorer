@@ -109,7 +109,7 @@ Edge::Edge (const Node &node1, const Node &node2)
   SetNodes (node1, node2);
 }
 
-void
+void inline
 Edge::SetNodes (const Node &node1, const Node &node2)
 {
   n1 = &node1;
