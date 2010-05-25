@@ -31,7 +31,6 @@ class Motion : public Glib::Object
 {
 public:
   virtual ~Motion ();
-
   /**
    * \brief start animation
    */
@@ -48,6 +47,10 @@ public:
    * \returns true if motion is visual
    */
   bool IsVisual (void) const;
+  /**
+   * \returns true if motion is visual
+   */
+  bool IsFinished (void) const;
   /**
    * \brief new frame
    */
@@ -97,7 +100,7 @@ class StaticMotion : public Motion
 {
 public:
   virtual ~StaticMotion ();
-
+  //functions defined in base class Motion
   virtual void Start (void);
   virtual void Stop (void);
   virtual void EnterFrame (uint32_t rate);
@@ -112,15 +115,23 @@ protected:
 class ImageMotion : public StaticMotion
 {
 public:
-  virtual ~ImageMotion ();
-
-  void SetPixbuf (const Glib::RefPtr<Gdk::Pixbuf> &pixbuf);
-  void SetPosition (double x, double y);
-
-  virtual void DrawFrame (const Cairo::RefPtr<Cairo::Context> &context);
-
   static Glib::RefPtr<ImageMotion> Create ();
   static Glib::RefPtr<ImageMotion> Create (const Glib::RefPtr<Gdk::Pixbuf> &pixbuf);
+
+  virtual ~ImageMotion ();
+  /**
+   * \brief set image
+   * \param pixbuf image Pixbuf
+   */
+  void SetPixbuf (const Glib::RefPtr<Gdk::Pixbuf> &pixbuf);
+  /**
+   * \brief set image position
+   * \param x
+   * \param y   
+   */
+  void SetPosition (double x, double y);
+  // functions defined in base class Motion
+  virtual void DrawFrame (const Cairo::RefPtr<Cairo::Context> &context);
 
 protected:
   ImageMotion ();
@@ -134,31 +145,14 @@ private:
   Cairo::RefPtr<Cairo::ImageSurface> m_surface;
 };
 
-
+/**
+ * \brief Simple animation 
+ */
 class Animation : public Motion
 {
 public:
-//  enum Transition
-//  {
-//    LINEAR = 0,
-//    SINOIDAL,
-//    REVERSE,
-//    FLICKER,
-//    WOBBLE,
-//    PULSE,
-//    SPRING,
-//    NONE,
-//    FULL
-//  };
-
   typedef double (*Transition)(double);
-  virtual ~Animation ();
-
-  void SetSlot (const sigc::slot<void, double> &slot);
-
-  virtual void EnterFrame (uint32_t rate);
-  virtual void DrawFrame (const Cairo::RefPtr<Cairo::Context> &context);
-
+  
   template<Transition T>
   static Glib::RefPtr<Animation> Create (double duration)
   {
@@ -171,6 +165,18 @@ public:
     return Glib::RefPtr<Animation> (new Animation (sigc::ptr_fun (T), duration, slot));
   }
 
+  virtual ~Animation ();
+
+  /**
+   * Set animation callback function
+   */
+  void SetSlot (const sigc::slot<void, double> &slot);
+
+  // functions defined in base class Motion
+  virtual void EnterFrame (uint32_t rate);
+  virtual void DrawFrame (const Cairo::RefPtr<Cairo::Context> &context);
+  
+  // transition functions
   static double Linear (double value) { return value; }
   static double Sinoidal (double value) { return -std::cos (value * M_PI) / 2.0 + .5; }
   static double Wobble (double value) { return -std::cos (value * value * M_PI * 9) / 2.0 + .5; }
@@ -191,32 +197,36 @@ private:
   sigc::slot<double, double> m_transition;
 };
 
-//Transitions: {
-//    linear: Prototype.K,
-//    sinoidal: function(pos) {
-//      return (-Math.cos(pos*Math.PI)/2) + .5;
-//    },
-//    reverse: function(pos) {
-//      return 1-pos;
-//    },
-//    flicker: function(pos) {
-//      var pos = ((-Math.cos(pos*Math.PI)/4) + .75) + Math.random()/4;
-//      return pos > 1 ? 1 : pos;
-//    },
-//    wobble: function(pos) {
-//      return (-Math.cos(pos*Math.PI*(9*pos))/2) + .5;
-//    },
-//    pulse: function(pos, pulses) {
-//      return (-Math.cos((pos*((pulses||5)-.5)*2)*Math.PI)/2) + .5;
-//    },
-//    spring: function(pos) {
-//      return 1 - (Math.cos(pos * 4.5 * Math.PI) * Math.exp(-pos * 6));
-//    },
-//    none: function(pos) {
-//      return 0;
-//    },
-//    full: function(pos) {
-//      return 1;
-//    }
-//  },
+/**
+ * \brief Animation queue
+ */
+class AnimationQueue : public Motion
+{
+public:
+  static Glib::RefPtr<AnimationQueue> Create (void);
+  static Glib::RefPtr<AnimationQueue> Create (const Glib::RefPtr<Animation> &a1);
+  static Glib::RefPtr<AnimationQueue> Create (const Glib::RefPtr<Animation> &a1, const Glib::RefPtr<Animation> &a2);
+  static Glib::RefPtr<AnimationQueue> Create (const Glib::RefPtr<Animation> &a1, const Glib::RefPtr<Animation> &a2,
+    const Glib::RefPtr<Animation> &a3);
+  static Glib::RefPtr<AnimationQueue> Create (const Glib::RefPtr<Animation> &a1, const Glib::RefPtr<Animation> &a2,
+    const Glib::RefPtr<Animation> &a3, const Glib::RefPtr<Animation> &a4);
+  static Glib::RefPtr<AnimationQueue> Create (const Glib::RefPtr<Animation> &a1, const Glib::RefPtr<Animation> &a2,
+    const Glib::RefPtr<Animation> &a3, const Glib::RefPtr<Animation> &a4, const Glib::RefPtr<Animation> &a5);
+  virtual ~AnimationQueue ();
+
+  void Add (const Glib::RefPtr<Animation> &anim);
+  virtual void Stop (void);
+
+  // functions defined in the base class Motion
+  virtual void EnterFrame (uint32_t rate);
+  virtual void DrawFrame (const Cairo::RefPtr<Cairo::Context> &context);
+
+protected:
+  AnimationQueue ();
+
+private:
+  typedef std::deque<Glib::RefPtr<Animation> > AnimationDeque;
+  AnimationDeque m_animations;
+};
+
 #endif /* MOTION_H */

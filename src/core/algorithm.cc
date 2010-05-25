@@ -23,7 +23,8 @@
 
 namespace algorithm {
 
-double Zoom (const Rectangle &rect, const std::vector<Node> &nodes)
+void 
+Scale (const Rectangle &rect, const std::vector<Node> &nodes, double &zoom, Point &center)
 {
   double minX = 0.0, minY = 0.0, maxX = 0.0, maxY = 0.0;
 
@@ -37,7 +38,6 @@ double Zoom (const Rectangle &rect, const std::vector<Node> &nodes)
         {
           maxX = (*i).x;
         }
-
       if ((*i).y < minY)
         {
           minY = (*i).y;
@@ -48,25 +48,27 @@ double Zoom (const Rectangle &rect, const std::vector<Node> &nodes)
         }
     }
 
-  if ((maxX - minX < 1E-9) || (maxY - minY < 1E-9))
+  double dx = maxX - minX, dy = maxY - minY;
+  
+  if (dx < 1E-9 && dy < 1E-9)
     {
-      return 1.0;
+      zoom = 1.0;
+    }
+  else if (dx < 1E-9)
+    {
+      zoom = rect.height () / dy;
+    }
+  else if (dy < 1E-9)
+    {
+      zoom = rect.width () / dx;
+    }
+  else 
+    {
+      zoom = std::min (rect.width () / dx, rect.height () / dy);
     }
 
-  double zX = rect.width () / (maxX - minX);
-  double zY = rect.height () / (maxY - minY);
-
-  std::cout << maxX << ", " << minX << ", " << rect.width () << ", " << zX << std::endl;
-  std::cout << maxY << ", " << minY << ", " << rect.height () << ", " << zY << std::endl;
-
-  if (zX < zY)
-    {
-      return zX;
-    }
-  else
-    {
-      return zY;
-    }
+  center.x = minX + dx / 2.0;
+  center.y = minY + dy / 2.0;
 }
 
 //template<class T>

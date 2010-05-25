@@ -50,6 +50,18 @@ RgbColor::operator RgbaColor () const
   return RgbaColor (r, g, b, 1.0);
 }
 
+Point::Point ()
+  : x (0.0),
+    y (0.0)
+{
+}
+  
+Point::Point (double xx, double yy)
+  : x (xx),
+    y (yy)
+{
+}
+  
 Rectangle::Rectangle ()
   : left (0),
     top (0),

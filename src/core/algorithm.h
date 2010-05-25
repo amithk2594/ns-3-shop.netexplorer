@@ -27,7 +27,11 @@
 
 namespace algorithm {
 
-double Zoom (const Rectangle &rect, const std::vector<Node> &nodes);
+/**
+ * \brief calculate zoom and scene offset
+ */
+void Scale (const Rectangle &rect, const std::vector<Node> &nodes, double &zoom, Point &center);
+
 //std::vector<Edge> GetAdjacentEdges (const Node* node, const std::vector<Edge> &edges);
 //std::vector<Edge> GetSpanningTree (const std::vector<Edge> &edges);
 

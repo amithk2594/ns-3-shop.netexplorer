@@ -48,6 +48,17 @@ public:
   double b;
 };
 
+class Point
+{
+public:
+  Point ();
+  Point (double xx, double yy);
+  
+public:
+  double x;
+  double y;
+};
+
 class Rectangle
 {
 public:

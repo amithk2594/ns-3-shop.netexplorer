@@ -93,6 +93,12 @@ Motion::IsVisual (void) const
   return m_visual;
 }
 
+bool
+Motion::IsFinished (void) const
+{
+  return m_finished;
+}
+
 void
 Motion::Capture (const sigc::slot<void, const Motion* > &slot)
 {
@@ -268,3 +274,112 @@ void
 Animation::DrawFrame (const Cairo::RefPtr<Cairo::Context> &context)
 {
 }
+
+///// AnimationQueue //////
+Glib::RefPtr<AnimationQueue>
+AnimationQueue::Create (void)
+{
+  return Glib::RefPtr<AnimationQueue> (new AnimationQueue ());
+}
+
+Glib::RefPtr<AnimationQueue> 
+AnimationQueue::Create (const Glib::RefPtr<Animation> &a1)
+{
+  Glib::RefPtr<AnimationQueue> queue = Glib::RefPtr<AnimationQueue> (new AnimationQueue ());
+  queue->Add (a1);
+  return queue;
+}
+
+Glib::RefPtr<AnimationQueue> 
+AnimationQueue::Create (const Glib::RefPtr<Animation> &a1, const Glib::RefPtr<Animation> &a2)
+{
+  Glib::RefPtr<AnimationQueue> queue = Glib::RefPtr<AnimationQueue> (new AnimationQueue ());
+  queue->Add (a1);
+  queue->Add (a2);
+  return queue;
+}
+
+Glib::RefPtr<AnimationQueue>
+AnimationQueue::Create (const Glib::RefPtr<Animation> &a1, const Glib::RefPtr<Animation> &a2,
+  const Glib::RefPtr<Animation> &a3)
+{
+  Glib::RefPtr<AnimationQueue> queue = Glib::RefPtr<AnimationQueue> (new AnimationQueue ());
+  queue->Add (a1);
+  queue->Add (a2);
+  queue->Add (a3);  
+  return queue;
+}
+
+Glib::RefPtr<AnimationQueue> 
+AnimationQueue::Create (const Glib::RefPtr<Animation> &a1, const Glib::RefPtr<Animation> &a2,
+    const Glib::RefPtr<Animation> &a3, const Glib::RefPtr<Animation> &a4)
+{
+  Glib::RefPtr<AnimationQueue> queue = Glib::RefPtr<AnimationQueue> (new AnimationQueue ());
+  queue->Add (a1);
+  queue->Add (a2);
+  queue->Add (a3);
+  queue->Add (a4);  
+  return queue;
+}
+
+Glib::RefPtr<AnimationQueue>
+AnimationQueue::Create (const Glib::RefPtr<Animation> &a1, const Glib::RefPtr<Animation> &a2,
+    const Glib::RefPtr<Animation> &a3, const Glib::RefPtr<Animation> &a4, const Glib::RefPtr<Animation> &a5)
+{
+  Glib::RefPtr<AnimationQueue> queue = Glib::RefPtr<AnimationQueue> (new AnimationQueue ());
+  queue->Add (a1);
+  queue->Add (a2);
+  queue->Add (a3);
+  queue->Add (a4);
+  queue->Add (a5);  
+  return queue;
+}
+
+AnimationQueue::AnimationQueue ()
+{
+  SetVisual (false);
+  Start ();
+}
+
+AnimationQueue::~AnimationQueue ()
+{
+}
+
+void
+AnimationQueue::Add (const Glib::RefPtr<Animation> &anim)
+{
+  m_animations.push_back (anim);
+}
+
+void
+AnimationQueue::Stop (void)
+{
+  m_animations.clear ();
+  Motion::Stop ();
+}
+
+void
+AnimationQueue::EnterFrame (uint32_t rate)
+{
+  while (m_animations.size ())
+    {
+      Glib::RefPtr<Animation> anim = m_animations.front ();      
+      if (!anim->IsFinished ())
+        {
+          anim->EnterFrame (rate);
+          return;        
+        }
+      m_animations.pop_front ();
+    }
+
+  if (m_animations.size () == 0)
+    {
+      Stop ();
+    }
+}
+
+void
+AnimationQueue::DrawFrame (const Cairo::RefPtr<Cairo::Context> &context)
+{
+}
+

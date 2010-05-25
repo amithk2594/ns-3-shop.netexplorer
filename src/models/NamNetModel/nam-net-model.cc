@@ -188,10 +188,19 @@ NamNetModel::HandleSetZoom (void)
   Rectangle viewport = m_scene.GetSceneViewport ();
   viewport.reduce (m_motion->GetNodeWidth()*4, m_motion->GetNodeWidth()*4);
   std::vector<Node> nodes = m_motion->GetNodes ();
-  double zoom = algorithm::Zoom (viewport, nodes);
 
-  m_scene.AddMotion (Animation::Create<Animation::Spring> (0.70,
-      sigc::bind (sigc::mem_fun (*this, &NamNetModel::ZoomMotion), zoom)));
+  double zoom;
+  Point center;
+  
+  algorithm::Scale (viewport, nodes, zoom, center);
+
+  m_scene.AddMotion (
+    Animation::Create<Animation::Spring> (0.70, sigc::bind (sigc::mem_fun (*this, &NamNetModel::ZoomMotion), zoom))
+  );
+
+  m_scene.AddMotion (
+    Animation::Create<Animation::Spring> (0.70, sigc::bind (sigc::mem_fun (*this, &NamNetModel::CenterMotion), center))
+  );
 }
 
 void
@@ -200,6 +209,12 @@ NamNetModel::ZoomMotion (double value, double zoom)
   double z = 1.0 + value * (zoom - 1.0);
   m_scene.SetZoom (z);
   SetZoom (z);
+}
+
+void
+NamNetModel::CenterMotion (double value, const Point& center)
+{
+  m_scene.SetCenter (-value * center.x, -value * center.y);
 }
 
 void

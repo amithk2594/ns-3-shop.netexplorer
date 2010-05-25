@@ -55,6 +55,7 @@ private:
   void SetMotionTime (double time);
   void SetZoom (double zoom);
   void ZoomMotion (double time, double zoom);
+  void CenterMotion (double time, const Point& center);
   void HandleSceneAlloc (Gtk::Allocation& allocation);
   void HandleSetZoom (void);
   bool HandleSceneRotate (enum Scene::MotionState state, double a1, double a2);
