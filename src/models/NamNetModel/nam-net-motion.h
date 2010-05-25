@@ -91,10 +91,6 @@ public:
    */
   double GetMotionSpeed (void) const;
   /**
-   * \param time motion time
-   */
-  void SetCurrentTime (double time);
-  /**
    * \returns current time
    */
   double GetCurrentTime (void) const;
@@ -106,6 +102,10 @@ public:
    * \brief load motion data
    */
   void LoadMotion (Glib::RefPtr<Gio::DataInputStream> stream);
+  /**
+   * \brief seek view iterator over model
+   */
+  void Seek (double time);
 
   std::vector<Node> GetNodes (void) const;
 
@@ -118,6 +118,7 @@ protected:
 
 private:
   typedef std::map<uint32_t, Node> NodeMap;
+  typedef std::list<Packet> PacketList;
   typedef std::vector<Packet> PacketVector;
   typedef std::vector<Edge> EdgeVector;
 
@@ -132,8 +133,9 @@ private:
   RgbaColor       m_packetColor;
   NodeMap         m_nodes;
   EdgeVector      m_edges;
-  PacketVector    m_packets;
-  PacketVector    m_currentPackets;
+  PacketList      m_packetBuffer; // currently visible packets
+  PacketVector    m_packets; // all packets
+  PacketVector::iterator m_packetIt;
   SignalEnterFrame m_signalEnterFrame;
 };
 

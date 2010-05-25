@@ -56,6 +56,7 @@ Rectangle::Rectangle ()
     right (0),
     bottom (0)
 {
+  normalize ();
 }
 
 Rectangle::Rectangle (double x1, double y1, double x2, double y2)
@@ -64,6 +65,7 @@ Rectangle::Rectangle (double x1, double y1, double x2, double y2)
     right (x2),
     bottom (y2)
 {
+  normalize ();
 }
 
 Rectangle::~Rectangle ()
@@ -80,6 +82,42 @@ double
 Rectangle::height (void) const
 {
   return std::fabs (bottom - top);
+}
+
+void
+Rectangle::enlarge (double w, double h)
+{
+  double hw = w / 2.0;
+  double hh = h / 2.0;
+  left -= hw;
+  right += hw;
+  top -= hh;
+  bottom += hh;
+  normalize ();
+}
+
+void
+Rectangle::reduce (double w, double h)
+{
+  enlarge (-w, -h);
+}
+
+void
+Rectangle::normalize (void)
+{
+  if (left < right)
+    {
+      double t = left;
+      left = right;
+      right = t;
+    }
+
+  if (top < bottom)
+    {
+      double t = top;
+      top = bottom;
+      bottom = t;
+    }
 }
 
 Node::Node ()

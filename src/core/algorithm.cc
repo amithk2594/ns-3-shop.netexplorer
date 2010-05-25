@@ -53,8 +53,11 @@ double Zoom (const Rectangle &rect, const std::vector<Node> &nodes)
       return 1.0;
     }
 
-  double zX = (maxX - minX) / rect.width ();
-  double zY = (maxY - minY) / rect.height ();
+  double zX = rect.width () / (maxX - minX);
+  double zY = rect.height () / (maxY - minY);
+
+  std::cout << maxX << ", " << minX << ", " << rect.width () << ", " << zX << std::endl;
+  std::cout << maxY << ", " << minY << ", " << rect.height () << ", " << zY << std::endl;
 
   if (zX < zY)
     {

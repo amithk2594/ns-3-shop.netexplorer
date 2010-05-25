@@ -55,8 +55,26 @@ public:
   Rectangle (double x1, double y1, double x2, double y2);
   virtual ~Rectangle ();
 
+  /**
+   * \returns rectangle width
+   */
   double width (void) const;
+  /**
+   * \returns rectangle height
+   */
   double height (void) const;
+  /**
+   * \brief enlarge rectangle width and height
+   */
+  void enlarge (double w, double h);
+  /**
+   * \brief reduce rectangle width and height
+   */
+  void reduce (double w, double h);
+  /**
+   * \brief normalize rectangle
+   */
+  void normalize (void);
 
 public:
   double left;

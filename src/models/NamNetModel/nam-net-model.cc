@@ -186,6 +186,7 @@ NamNetModel::HandleSetZoom (void)
   m_allocConnection.disconnect ();
 
   Rectangle viewport = m_scene.GetSceneViewport ();
+  viewport.reduce (m_motion->GetNodeWidth()*4, m_motion->GetNodeWidth()*4);
   std::vector<Node> nodes = m_motion->GetNodes ();
   double zoom = algorithm::Zoom (viewport, nodes);
 
@@ -318,7 +319,7 @@ NamNetModel::HandleStop (void)
   m_motion->Stop ();
   m_motionStateConnection.unblock ();
   m_scale.set_value (0.0);
-  m_motion->SetCurrentTime (0.0);
+  m_motion->Seek (0.0);
   SetMotionTime (0.0);
 
   GetAction ("/Tool/Play")->set_visible (true);
@@ -351,7 +352,7 @@ NamNetModel::HandleForward (void)
 bool
 NamNetModel::HandleScaleChange (Gtk::ScrollType scroll, double value)
 {
-  m_motion->SetCurrentTime (value);
+  //m_motion->Seek (value);
   SetMotionTime (value);
   m_scene.Invalidate ();
   return true;
@@ -374,6 +375,10 @@ NamNetModel::HandleSliderMovingEnd (GdkEventButton* event)
   if (GetAction ("/Tool/Pause")->get_visible ())
     {
       HandlePlay ();
+    }
+  else
+    {
+      m_motion->Seek (m_scale.get_value());
     }
   return false;
 }

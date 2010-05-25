@@ -36,6 +36,7 @@ NamNetMotion::NamNetMotion ()
     m_packetColor (0.0, 0.0, 1.0, 0.7)
 {
   SetVisual (true);
+  m_packetIt = m_packets.begin ();
 }
 
 NamNetMotion::~NamNetMotion ()
@@ -60,6 +61,13 @@ NamNetMotion::EnterFrame (uint32_t rate)
     }
 
   m_currentTime = time;
+  // add packets to the buffer
+  while (m_packetIt != m_packets.end ())
+    {
+      if ((*m_packetIt).fbTx > time) break;// in the future
+      m_packetBuffer.push_back (*m_packetIt);
+      m_packetIt++;
+    }
 
   Motion::EnterFrame (rate);
 }
@@ -83,13 +91,16 @@ NamNetMotion::DrawFrame (const Cairo::RefPtr<Cairo::Context> &context)
   context->set_line_cap (Cairo::LINE_CAP_BUTT);
   context->set_line_width (m_packetWidth);
 
-  for (PacketVector::iterator i = m_packets.begin(); i != m_packets.end(); ++i)
+  PacketList::iterator i = m_packetBuffer.begin();
+  while (i != m_packetBuffer.end())
     {
-      if ((*i).lbRx <= m_currentTime) continue; // In the past
-      if ((*i).fbTx > m_currentTime) continue;  // In the future
+      if ((*i).lbRx <= m_currentTime || (*i).fbTx > m_currentTime) // In the past or in the future
+        {
+          i = m_packetBuffer.erase (i);
+          continue;
+        }
 
       Packet pkt = *i;
-
       context->save ();
       const Edge *edge = pkt.edge;
       if (pkt.direction == 0)
@@ -130,6 +141,8 @@ NamNetMotion::DrawFrame (const Cairo::RefPtr<Cairo::Context> &context)
       context->stroke ();
 
       context->restore();
+
+      ++i;
     }
 
   // draw nodes
@@ -231,12 +244,6 @@ NamNetMotion::GetMotionSpeed (void) const
   return m_speed;
 }
 
-void
-NamNetMotion::SetCurrentTime (double time)
-{
-  m_currentTime = time;
-}
-
 double
 NamNetMotion::GetCurrentTime (void) const
 {
@@ -247,6 +254,37 @@ double
 NamNetMotion::GetLastTime (void) const
 {
   return m_lastTime;
+}
+
+void
+NamNetMotion::Seek (double time)
+{
+  m_packetBuffer.clear ();
+  PacketVector::iterator it = m_packets.begin ();
+  while (it != m_packets.end ())
+    {
+      if ((*it).fbTx > time) break;
+      if ((*it).lbRx >= time)
+        {
+          m_packetBuffer.push_back (*it);
+        }
+      it++;
+    }
+
+  m_packetIt = it;
+
+  if (time > m_lastTime)
+    {
+      m_currentTime = m_lastTime;
+    }
+  else if (time < 0)
+    {
+      m_currentTime = 0;
+    }
+  else
+    {
+      m_currentTime = time;
+    }
 }
 
 std::vector<Node>
@@ -274,6 +312,7 @@ NamNetMotion::LoadMotion (Glib::RefPtr<Gio::DataInputStream> stream)
   m_currentTime = 0;
   m_nodes.clear ();
   m_packets.clear ();
+  m_packetBuffer.clear ();
   m_edges.clear ();
 
   while (stream->read_line (line))
@@ -355,4 +394,6 @@ NamNetMotion::LoadMotion (Glib::RefPtr<Gio::DataInputStream> stream)
     {
       m_lastTime = 0;
     }
+
+  m_packetIt = m_packets.begin ();
 }
