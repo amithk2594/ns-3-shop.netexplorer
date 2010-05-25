@@ -84,7 +84,7 @@ NamNetModel::Initialize (void)
 
   m_speedLabel.set_width_chars (6);
 
-  Gtk::Alignment* alignment;
+  //Gtk::Alignment* alignment;
   Gtk::HBox* topBox = Gtk::manage (new Gtk::HBox ());
   Gtk::HBox* bottomBox = Gtk::manage (new Gtk::HBox ());
   Gtk::Toolbar* toolbar = GetUI<Gtk::Toolbar> ("/Tool");
@@ -185,14 +185,14 @@ NamNetModel::HandleSetZoom (void)
 {
   m_allocConnection.disconnect ();
 
+  m_scene.SetZoom (1.0);
   Rectangle viewport = m_scene.GetSceneViewport ();
-  viewport.reduce (m_motion->GetNodeWidth()*4, m_motion->GetNodeWidth()*4);
   std::vector<Node> nodes = m_motion->GetNodes ();
 
   double zoom;
   Point center;
-  
-  algorithm::Scale (viewport, nodes, zoom, center);
+
+  algorithm::Scale (viewport, nodes, m_motion->GetNodeWidth(), zoom, center);
 
   m_scene.AddMotion (
     Animation::Create<Animation::Spring> (0.70, sigc::bind (sigc::mem_fun (*this, &NamNetModel::ZoomMotion), zoom))

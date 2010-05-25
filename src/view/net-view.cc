@@ -99,30 +99,7 @@ NetView::HandleFileOpen ()
       return;
     }
 
-  std::string filename = dialog.get_filename ();
-
-  for (ModelFactory::Iterator i = ModelFactory::Begin (); i != ModelFactory::End (); ++i)
-    {
-      if ((*i).second.IsReadable ())
-        {
-          Glib::PatternSpec pattern ((*i).second.GetPattern ());
-          if (pattern.match (filename))
-            {
-              Glib::RefPtr<Gio::FileInputStream> fileStream = dialog.get_file ()->read ();
-              Glib::RefPtr<Gio::DataInputStream> dataStream = Gio::DataInputStream::create (fileStream);
-              NetModel* model = (*i).second.Create ();
-              if (!model->ReadFromStream (dataStream))
-                {
-                  // XXX: some error message
-                  delete model;
-                  return;
-                }
-
-              InitializeModel (model);
-              return;
-            }
-        }
-    }
+  LoadModel (dialog.get_filename ());
 }
 
 void
@@ -135,6 +112,58 @@ void
 NetView::HandleFileQuit ()
 {
   hide ();
+}
+
+bool
+NetView::LoadModel (const std::string &filename)
+{
+  for (ModelFactory::Iterator i = ModelFactory::Begin (); i != ModelFactory::End (); ++i)
+    {
+      if ((*i).second.IsReadable ())
+        {
+          Glib::PatternSpec pattern ((*i).second.GetPattern ());
+          if (pattern.match (filename))
+            {
+              Glib::RefPtr<Gio::File> file;
+              try
+              {
+                 file = Gio::File::create_for_path(filename);
+              }
+              catch (Gio::Error &e)
+              {
+                std::cerr << e.what() << std::endl;
+                return false;
+              }
+
+              Glib::RefPtr<Gio::FileInputStream> stream;
+              try
+              {
+                stream = file->read();
+              }
+              catch (Gio::Error &e)
+              {
+                std::cerr << e.what() << std::endl;
+                return false;
+              }
+
+              Glib::RefPtr<Gio::DataInputStream> dataStream = Gio::DataInputStream::create (stream);
+              NetModel* model = (*i).second.Create ();
+              if (!model->ReadFromStream (dataStream))
+                {
+                  // XXX: some error message
+                  delete model;
+                  std::cerr << "Error while reading model "<< (*i).first << "." << std::endl;
+                  return false;
+                }
+
+              InitializeModel (model);
+              return true;
+            }
+        }
+    }
+
+  std::cerr << "Got unknown model." << std::endl;
+  return false;
 }
 
 void

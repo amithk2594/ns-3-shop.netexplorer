@@ -113,7 +113,7 @@ public:
   /**
    * \returns scene viewport rectange
    */
-  Rectangle GetSceneViewport (void) const;
+  Rectangle GetSceneViewport (uint32_t padding = 0) const;
   /**
    * \param context cairo context
    * Apply scene zoom and scale to context

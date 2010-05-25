@@ -21,6 +21,7 @@
 #include <iostream>
 
 #include "null-net-model.h"
+#include "null-images.h"
 #include "null-net-model.ui"
 
 ENSURE_REGISTER_MODEL (NullNetModel);
@@ -54,6 +55,9 @@ void
 NullNetModel::Initialize (void)
 {
   pack_start (*GetUI<Gtk::MenuBar> ("/Menu"), Gtk::PACK_SHRINK);
+  Glib::RefPtr<Gdk::Pixbuf> logo = Gdk::Pixbuf::create_from_inline (256*256*4 + 24, images::logo_image);
+  pack_start (*Gtk::manage (new Gtk::Image (logo)), Gtk::PACK_EXPAND_WIDGET);
+  show_all_children ();
 }
 
 bool

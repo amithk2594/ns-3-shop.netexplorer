@@ -26,9 +26,42 @@
 int
 main(int argc, char *argv[])
 {
-  Gtk::Main kit(argc, argv);
+  bool version = false;
+  std::string filename;
+
+  Glib::ustring name = "netexplorer";
+
+  Glib::OptionGroup options (name, "NetExplorer Options");
+
+  Glib::OptionEntry entry;
+  entry.set_long_name ("version");
+  entry.set_description ("Show version and exit.");
+  options.add_entry (entry, version) ;
+
+  entry.set_long_name ("filename");
+  entry.set_short_name ('f');
+  entry.set_description ("Load model from file.");
+  options.add_entry_filename (entry, filename) ;
+
+  Glib::OptionContext context ("-- A Network Animator for Gnome/GTK+") ;
+  context.add_group (options);
+
+  Gtk::Main kit(argc, argv, context);
+
+  if (version)
+    {
+      std::cout << name << " - Version 1.1b" << std::endl;
+      return 0;
+    }
 
   NetView window;
+  if (filename.size () > 0)
+    {
+      if (!window.LoadModel (filename))
+        {
+          return 0;
+        }
+    }
 
   Gtk::Main::run (window);
   return 0;

@@ -23,8 +23,8 @@
 
 namespace algorithm {
 
-void 
-Scale (const Rectangle &rect, const std::vector<Node> &nodes, double &zoom, Point &center)
+void
+Scale (const Rectangle &rect, const std::vector<Node> &nodes, double tresshold, double &zoom, Point &center)
 {
   double minX = 0.0, minY = 0.0, maxX = 0.0, maxY = 0.0;
 
@@ -48,8 +48,15 @@ Scale (const Rectangle &rect, const std::vector<Node> &nodes, double &zoom, Poin
         }
     }
 
+  tresshold /= 2.0;
+
+  minX -= tresshold;
+  maxX += tresshold;
+  minY -= tresshold;
+  maxY += tresshold;
+
   double dx = maxX - minX, dy = maxY - minY;
-  
+
   if (dx < 1E-9 && dy < 1E-9)
     {
       zoom = 1.0;
@@ -62,7 +69,7 @@ Scale (const Rectangle &rect, const std::vector<Node> &nodes, double &zoom, Poin
     {
       zoom = rect.width () / dx;
     }
-  else 
+  else
     {
       zoom = std::min (rect.width () / dx, rect.height () / dy);
     }

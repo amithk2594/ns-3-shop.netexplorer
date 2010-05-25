@@ -2,6 +2,7 @@ def build(bld):
     bld.create_model ([
         'null-net-model.ui',
     ], [
+        'null-images.h',
         'null-net-model.h',
         'null-net-model.cc'
     ])

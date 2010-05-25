@@ -194,12 +194,12 @@ Scene::GetSceneCoords (double sceneX, double sceneY, uint32_t x, uint32_t y, dou
 }
 
 Rectangle
-Scene::GetSceneViewport (void) const
+Scene::GetSceneViewport (uint32_t padding) const
 {
   Rectangle rect;
   Gtk::Allocation allocation = get_allocation ();
-  GetSceneCoords (m_centerX, m_centerY, 0, 0, rect.left, rect.top);
-  GetSceneCoords (m_centerX, m_centerY, allocation.get_width (), allocation.get_height (), rect.right, rect.bottom);
+  GetSceneCoords (m_centerX, m_centerY, padding, padding, rect.left, rect.top);
+  GetSceneCoords (m_centerX, m_centerY, allocation.get_width () - padding, allocation.get_height () - padding, rect.right, rect.bottom);
   return rect;
 }
 

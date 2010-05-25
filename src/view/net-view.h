@@ -29,6 +29,7 @@ class NetView: public Gtk::Window
 public:
   NetView ();
   virtual ~NetView ();
+  bool LoadModel (const std::string &filename);
 
 private:
   void InitializeModel (NetModel *model);
