@@ -23,16 +23,16 @@
 
 namespace graph {
 
-typedef unsigned short int MarkerIndex;
-typedef unsigned int MarkerValue;
+typedef uint16_t MarkerIndex;
+typedef uint32_t MarkerValue;
 
 /**
  * Marker-related constants
  */
-const short int MAX_GRAPH_MARKERS = 10; /** How many markers are allowed simultaneously */
+const uint32_t MAX_GRAPH_MARKERS = 10; // How many markers are allowed simultaneously
 const MarkerValue GRAPH_MARKER_CLEAN = 0;
 const MarkerValue GRAPH_MARKER_FIRST = 1;
-const MarkerValue GRAPH_MARKER_LAST = ( MarkerValue)( (int)-1);
+const MarkerValue GRAPH_MARKER_LAST = (MarkerValue) (-1);
 
 /**
  * \enum Possible marker errors
@@ -66,7 +66,10 @@ class Marker
 class Marked
 {
 public:
-  Marked();
+  /**
+   * Create marked object
+   */
+  Marked ();
   /**
    * \param marker Marker
    * \returns false if node is already marked. True otherwise.
@@ -89,7 +92,7 @@ public:
   void Clear (MarkerIndex i);
 
 private:
-  MarkerValue markers[MAX_GRAPH_MARKERS];
+  MarkerValue m_markers[MAX_GRAPH_MARKERS];
 };
 
 
@@ -99,117 +102,46 @@ private:
 class MarkerManager
 {
 public:
-  MarkerManager();
+  MarkerManager ();
   /**
    * \brief Acquire new marker. Markers MUST be freed after use,otherwise you run to markers number limit.
    */
-  Marker NewMarker();
+  Marker NewMarker (void);
   /**
-   * Free marker
+   * \brief Free marker
    */
   inline void FreeMarker (const Marker &marker);
 
-private:
-
-  /** Implementatinal routines */
-  /**
-   * Find free index
-   */
-  inline MarkerIndex findFreeIndex()
-  {
-      MarkerIndex i = 0;
-      /** Search for free marker index */
-      for ( i = 0; i < MAX_GRAPH_MARKERS; i++)
-      {
-          if ( !is_used [ i])
-          {
-              return i;
-          }
-      }
-      throw M_ERROR_OUT_OF_INDEXES;
-      return i;
-  }
-
-  /**
-   * Increment marker value
-   */
-  inline MarkerValue nextValue()
-  {
-      if ( last == GRAPH_MARKER_LAST)
-      {
-          last = GRAPH_MARKER_FIRST;
-      } else
-      {
-          last++;
-      }
-      return last;
-  }
-
-  /**
-   * MUST BE implemented in inhereted class
-   */
-  virtual void clearMarkersInObjects() = 0;
-
-  /**
-   * Check if this value is busy
-   */
-  inline bool isValueBusy( MarkerValue val)
-  {
-      /** Check all markers */
-      for ( MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
-      {
-          if ( is_used [ i] && markers[ i] == val)
-              return true;
-      }
-      return false;
-  }
-
-  /**
-   * Return next free value
-   */
-  inline MarkerValue findNextFreeValue()
-  {
-      MarkerIndex i = 0;
-      bool reached_limit = false;
-      MarkerValue res = last;
-
-      while( isValueBusy( res))
-      {
-          /**
-           * If we reached checked GRAPH_MARKER_LAST twice,
-           * then we are in infinite loop and for some reason we don't free our markers
-           */
-          if ( res == GRAPH_MARKER_LAST)
-          {
-              assert< MarkerErrorType> ( !reached_limit,
-                                         M_ERROR_OUT_OF_VALUES);
-              clearMarkersInObjects();
-              reached_limit = true;
-          }
-          res = nextValue();
-      }
-      return res;
-  }
 protected:
   /**
-   * Clears unused markers in given object
+   * \brief Find free index
    */
-  inline void clearUnusedMarkers( Marked *m_obj)
-  {
-      for ( MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
-      {
-          if ( !is_used [ i])
-              m_obj->clear( i);
-      }
-  }
+  inline MarkerIndex FindFreeIndex (void) const;
+  /**
+   * \brief Increment marker value
+   */
+  inline MarkerValue NextValue (void);
+  /**
+   * \brief MUST BE implemented in inhereted class
+   */
+  virtual void ClearMarkersInObjects() = 0;
+  /**
+   * \brief Check if this value is busy
+   */
+  inline bool IsValueBusy (MarkerValue val) const;
+  /**
+   * \returns next free value
+   */
+  inline MarkerValue FindNextFreeValue (void);
+  /**
+   * \brief Clears unused markers in given object
+   */
+  inline void ClearUnusedMarkers (Marked *m_obj) const;
 
 private:
-    /**
-     * Markers
-     */
-    MarkerValue markers[ MAX_GRAPH_MARKERS];
-    bool is_used[ MAX_GRAPH_MARKERS];
-    MarkerValue last;
+    MarkerValue m_markers[MAX_GRAPH_MARKERS];
+    bool m_isused[MAX_GRAPH_MARKERS];
+    MarkerValue m_last;
 };
 
 }; // namespace graph

@@ -23,204 +23,151 @@
 
 namespace graph {
 
-Marked::Marked()
+Marked::Marked ()
 {
+  for (uint32_t i = 0; i < MAX_GRAPH_MARKERS; i++)
+    {
+      m_markers[i] = GRAPH_MARKER_CLEAN;
+    }
 }
-
 
 bool
 Marked::Mark (const Marker &marker)
 {
-  if (markers[marker.index] == marker.value)
+  if (m_markers[marker.index] == marker.value)
     {
       return false;
     }
-  markers[marker.index] = marker.value;
+
+  m_markers[marker.index] = marker.value;
   return true;
 }
 
 bool
 Marked::isMarked (const Marker &marker)
 {
-  if (markers[marker.index] == marker.value)
-    {
-      return true;
-    }
-  return false;
+  return m_markers[marker.index] == marker.value;
 }
 
 bool
 Marked::Unmark (const Marker &marker)
 {
-  if (markers[marker.index] == marker.value)
+  if (m_markers[marker.index] == marker.value)
     {
-      markers[marker.index] = GRAPH_MARKER_CLEAN;
+      m_markers[marker.index] = GRAPH_MARKER_CLEAN;
       return true;
     }
+
   return false;
 }
 
 void Clear (MarkerIndex i)
 {
-   markers[i] = GRAPH_MARKER_CLEAN;
+   m_markers[i] = GRAPH_MARKER_CLEAN;
 }
 
-/**
- * Class that creates/frees markers
- */
-class MarkerManager
+//// MarkerManager
+
+MarkerManager::MarkerManager()
 {
-    /**
-     * Markers
-     */
-    MarkerValue markers[ MAX_GRAPH_MARKERS];
-    bool is_used[ MAX_GRAPH_MARKERS];
-    MarkerValue last;
-
-    /** Implementatinal routines */
-    /**
-     * Find free index
-     */
-    inline MarkerIndex findFreeIndex()
+  for (MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
     {
-        MarkerIndex i = 0;
-        /** Search for free marker index */
-        for ( i = 0; i < MAX_GRAPH_MARKERS; i++)
-        {
-            if ( !is_used [ i])
-            {
-                return i;
-            }
-        }
-        throw M_ERROR_OUT_OF_INDEXES;
-        return i;
+      m_markers[i] = GRAPH_MARKER_CLEAN;
+      m_isused[i] = false;
     }
 
-    /**
-     * Increment marker value
-     */
-    inline MarkerValue nextValue()
-    {
-        if ( last == GRAPH_MARKER_LAST)
-        {
-            last = GRAPH_MARKER_FIRST;
-        } else
-        {
-            last++;
-        }
-        return last;
-    }
+  m_last = GRAPH_MARKER_FIRST;
+}
 
-    /**
-     * MUST BE implemented in inhereted class
-     */
-    virtual void clearMarkersInObjects() = 0;
+Marker
+MarkerManager::NewMarker()
+{
+  Marker marker;
+  marker.index = FindFreeIndex ();
+  m_isused[marker.index] = true;
+  marker.value = FindNextFreeValue ();
+  markers [marker.index] = marker.value;
+  return marker;
+}
 
-    /**
-     * Check if this value is busy
-     */
-    inline bool isValueBusy( MarkerValue val)
-    {
-        /** Check all markers */
-        for ( MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
-        {
-            if ( is_used [ i] && markers[ i] == val)
-                return true;
-        }
-        return false;
-    }
+void
+MarkerManager::FreeMarker (const Marker &marker)
+{
+  m_isused[marker.index] = false;
+}
 
-    /**
-     * Return next free value
-     */
-    inline MarkerValue findNextFreeValue()
+MarkerIndex
+MarkerManager::FindFreeIndex(void) const
+{
+  for (MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
     {
-        MarkerIndex i = 0;
-        bool reached_limit = false;
-        MarkerValue res = last;
-
-        while( isValueBusy( res))
+      if (!m_isused[i])
         {
-            /**
-             * If we reached checked GRAPH_MARKER_LAST twice,
-             * then we are in infinite loop and for some reason we don't free our markers
-             */
-            if ( res == GRAPH_MARKER_LAST)
-            {
-                assert< MarkerErrorType> ( !reached_limit,
-                                           M_ERROR_OUT_OF_VALUES);
-                clearMarkersInObjects();
-                reached_limit = true;
-            }
-            res = nextValue();
-        }
-        return res;
-    }
-protected:
-    /**
-     * Clears unused markers in given object
-     */
-    inline void clearUnusedMarkers( Marked *m_obj)
-    {
-        for ( MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
-        {
-            if ( !is_used [ i])
-                m_obj->clear( i);
+          return i;
         }
     }
-public:
 
-    /**
-     * Default Constructor
-     */
-    MarkerManager()
+  throw M_ERROR_OUT_OF_INDEXES;
+  return 0;
+}
+
+MarkerValue
+MarkerManager::NextValue (void)
+{
+  if (m_last == GRAPH_MARKER_LAST)
     {
-        MarkerIndex i;
-
-        /** Initialize markers */
-        for ( i = 0; i < MAX_GRAPH_MARKERS; i++)
-        {
-            markers [ i] = GRAPH_MARKER_CLEAN;
-            is_used [ i] = false;
-        }
-        last = GRAPH_MARKER_FIRST;
+      m_last = GRAPH_MARKER_FIRST;
+    }
+  else
+    {
+      m_last++;
     }
 
-    /**
-     * Acquire new marker. Markers MUST be freed after use,
-     * otherwise you run to markers number limit.
-     */
-    Marker newMarker()
-    {
-        try {
-            Marker new_marker;
+  return m_last;
+}
 
-            new_marker.index = findFreeIndex();
-            is_used[ new_marker.index] = true;
-            new_marker.value = findNextFreeValue();
-            markers[ new_marker.index] = new_marker.value;
-            return new_marker;
-        } catch ( MarkerErrorType type)
-        {
-            /** Handle errors */
-            switch ( type)
-            {
-                case M_ERROR_GENERIC:
-                default:
-                    assert(0);
-            }
-            assert(0);
-        }
-        return newMarker();
-    }
-    /**
-     * Free marker
-     */
-    inline void freeMarker( Marker m)
+bool
+MarkerManager::IsValueBusy (MarkerValue val) const
+{
+  for (MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
     {
-        is_used[ m.index] = false;
+      if (m_isused[i] && markers[i] == val)
+          return true;
     }
-};
+
+  return false;
+}
+
+MarkerValue
+MarkerManager::FindNextFreeValue (void)
+{
+  MarkerIndex i = 0;
+  bool reached_limit = false;
+  MarkerValue res = last;
+
+  while (IsValueBusy (res))
+  {
+    if (res == GRAPH_MARKER_LAST)
+      {
+        assert< MarkerErrorType> (!reached_limit,
+                                   M_ERROR_OUT_OF_VALUES);
+        ClearMarkersInObjects ();
+        reached_limit = true;
+      }
+      res = NextValue();
+  }
+  return res;
+}
+
+void
+MarkerManager::ClearUnusedMarkers (Marked *marked) const
+{
+  for (MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
+    {
+      if (!m_isused[i]) marked->clear (i);
+    }
+}
+
 }; // namespace graph
 
 #endif /* MARKER_H */
