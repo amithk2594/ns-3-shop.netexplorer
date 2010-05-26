@@ -1,0 +1,12 @@
+def build(bld):
+    bld.create_module ([
+      'common.h',
+      'common.cc',
+      'error.h',
+      'error.cc',
+      'tree-models.h',
+      'gtk-util.h',
+      'gtk-util.cc',
+      'algorithm.h',
+      'algorithm.cc'
+    ])

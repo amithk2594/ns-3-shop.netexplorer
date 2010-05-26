@@ -1,0 +1,6 @@
+def build(bld):
+    bld.create_module ([
+        'view-images.h',
+        'net-view.h',
+        'net-view.cc'
+    ])

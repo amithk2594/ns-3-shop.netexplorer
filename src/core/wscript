@@ -1,0 +1,10 @@
+def build(bld):
+    bld.add_subdirs ('misc')
+    bld.add_subdirs ('motion')
+
+    bld.create_module ([
+      'net-model.h',
+      'net-model.cc',
+      'scene.h',
+      'scene.cc'
+    ])

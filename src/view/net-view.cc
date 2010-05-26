@@ -23,14 +23,17 @@
 #include <string>
 
 #include "net-view.h"
+#include "view-images.h"
 #include "null-net-model.h"
 
 NetView::NetView ()
   : m_model (0)
 {
+  m_logo = Gdk::Pixbuf::create_from_inline (64*64*4 + 24, images::icon_image);
+
   set_default_size (700, 700);
   set_title ("Network Explorer");
-
+  set_icon (m_logo);
   InitializeModel (ModelFactory::Create ("NullNetModel"));
 }
 

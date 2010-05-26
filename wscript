@@ -3,32 +3,11 @@ from __future__ import with_statement
 top = '.'
 out = 'build'
 
-models = (
+modules = (
   'src/models/NullNetModel',
-  'src/models/NamNetModel'
-)
-
-base_files = (
-  'src/core/common.h',
-  'src/core/common.cc',
-  'src/core/algorithm.h',
-  'src/core/algorithm.cc',
-  'src/core/error.h',
-  'src/core/error.cc',
-  'src/core/gtk-util.h',
-  'src/core/gtk-util.cc',
-  'src/core/tree-models.h',
-  'src/core/net-model.h',
-  'src/core/net-model.cc',
-  'src/core/scene.h',
-  'src/core/scene.cc',
-  'src/core/motion-manager.h',
-  'src/core/motion-manager.cc',
-  'src/core/motion.h',
-  'src/core/motion.cc',
-  'src/view/net-view.h',
-  'src/view/net-view.cc',
-  'src/main.cc',
+  'src/models/NamNetModel',
+  'src/core',
+  'src/view',
 )
 
 def configure(conf):
@@ -49,7 +28,7 @@ def build(bld):
             if i.endswith ('.cc'):
                 sources.append (os.path.basename (i))
 
-    def create_model (resources = None, files = None):
+    def create_model (files = None, resources = None):
         if files:
             append_sources (files)
 
@@ -65,15 +44,16 @@ def build(bld):
 
     bld.new_task_gen(
         'collect',
-        source = base_files
+        source = ('src/main.cc',)
     )
 
     bld.create_model = create_model;
+    bld.create_module = create_model;
 
-    for i in models:
+    for i in modules:
         bld.add_subdirs (i);
 
-    append_sources (base_files)
+    append_sources (['src/main.cc'])
 
     bld(
         uselib    = 'GTKMM',

@@ -1,0 +1,7 @@
+def build(bld):
+    bld.create_module ([
+      'motion-manager.h',
+      'motion-manager.cc',
+      'motion.h',
+      'motion.cc',
+    ])

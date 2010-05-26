@@ -39,6 +39,7 @@ private:
   void HandleHelpAbout ();
 
   NetModel *m_model;
+  Glib::RefPtr<Gdk::Pixbuf> m_logo;
 };
 
 #endif /* NET_VIEW_H */
