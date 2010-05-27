@@ -37,7 +37,7 @@ const MarkerValue GRAPH_MARKER_LAST = (MarkerValue) (-1);
 /**
  * \enum Possible marker errors
  */
-typedef enum MarkerErrorType_e
+enum MarkerErrorType
 {
   /** Some error occured */
   M_ERROR_GENERIC,
@@ -47,7 +47,7 @@ typedef enum MarkerErrorType_e
   M_ERROR_OUT_OF_VALUES,
   /** Number of error types */
   M_ERROR_NUM
-} MarkerErrorType;
+};
 
 /**
  * \brief Marker class
@@ -75,21 +75,21 @@ public:
    * \returns false if node is already marked. True otherwise.
    * Mark node with marker.
    */
-  bool Mark (const Marker &marker);
+  inline bool Mark (const Marker &marker);
   /**
    * \param marker
    * \returns true if node is marked with this marker
   */
-  bool IsMarked (const Marker &marker);
+  inline bool IsMarked (const Marker &marker);
   /**
    * \param marker
    * \returns true if node has been marked with this marker and unmarks it
    */
-  bool Unmark (const Marker &marker);
+  inline bool Unmark (const Marker &marker);
   /**
    * Clears value for given index
    */
-  void Clear (MarkerIndex i);
+  inline void Clear (MarkerIndex i);
 
 private:
   MarkerValue m_markers[MAX_GRAPH_MARKERS];
@@ -136,12 +136,12 @@ protected:
   /**
    * \brief Clears unused markers in given object
    */
-  inline void ClearUnusedMarkers (Marked *m_obj) const;
+  inline void ClearUnusedMarkers (Marked *marked) const;
 
 private:
-    MarkerValue m_markers[MAX_GRAPH_MARKERS];
-    bool m_isused[MAX_GRAPH_MARKERS];
-    MarkerValue m_last;
+  MarkerValue m_markers[MAX_GRAPH_MARKERS];
+  bool m_isused[MAX_GRAPH_MARKERS];
+  MarkerValue m_last;
 };
 
 }; // namespace graph

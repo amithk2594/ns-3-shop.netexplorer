@@ -18,9 +18,6 @@
  * Author: Andrey Churin <aachurin@gmail.com>
  */
 
-#ifndef MARKER_H
-#define MARKER_H
-
 namespace graph {
 
 Marked::Marked ()
@@ -149,8 +146,7 @@ MarkerManager::FindNextFreeValue (void)
   {
     if (res == GRAPH_MARKER_LAST)
       {
-        assert< MarkerErrorType> (!reached_limit,
-                                   M_ERROR_OUT_OF_VALUES);
+        assert<MarkerErrorType> (!reached_limit, M_ERROR_OUT_OF_VALUES);
         ClearMarkersInObjects ();
         reached_limit = true;
       }
@@ -170,4 +166,3 @@ MarkerManager::ClearUnusedMarkers (Marked *marked) const
 
 }; // namespace graph
 
-#endif /* MARKER_H */
