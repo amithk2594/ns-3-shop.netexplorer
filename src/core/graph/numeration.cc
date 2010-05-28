@@ -92,7 +92,7 @@ NumerationManager::NumerationManager ()
       m_nums[i] = NUM_VALUE_CLEAN;
       m_isused[i] = false;
     }
-  
+
   m_last = NUM_VALUE_FIRST;
 }
 
@@ -138,7 +138,7 @@ NumerationManager::NextValue (void)
   if (m_last == NUM_VALUE_LAST)
     {
       m_last = NUM_VALUE_FIRST;
-    } 
+    }
   else
     {
       m_last++;
@@ -160,7 +160,21 @@ NumerationManager::IsValueBusy (NumValue val) const
 NumValue
 NumerationManager::FindNextFreeValue (void)
 {
-  
+  NumIndex i = 0;
+  bool reached_limit = false;
+  NumValue res = last;
+
+  while (IsValueBusy (res))
+    {
+      if (res == NUM_VAL_LAST)
+        {
+          assert <NumErrorType> (!reached_limit, NUM_ERROR_OUT_OF_VALUES);
+          ClearNumerationsInObjects();
+          reached_limit = true;
+        }
+      res = NextValue();
+    }
+  return res;
 }
 
 void
@@ -168,9 +182,8 @@ NumerationManager::ClearUnusedNumerations (Numbered *numbered)
 {
   for (NumIndex i = 0; i < MAX_NUMERATIONS; i++)
     {
-      if (!m_isused[i]) numbered->clear (i);
+      if (!m_isused[i]) numbered->Clear (i);
     }
 }
 
 }; // namespace graph
-

@@ -62,7 +62,6 @@ class Numeration
 {
   NumIndex index;
   NumValue value;
-
   friend class Numbered;
   friend class NumerationManager;
 };
@@ -80,7 +79,7 @@ public:
   virtual ~Numbered ();
 
   /**
-   * \brief Mark node with num. 
+   * \brief Mark node with num.
    * \returns false if node is already numbered.
    */
   inline bool SetNumber (const Numeration &num, GraphNum value);
@@ -101,7 +100,7 @@ public:
    */
   inline void Clear (NumIndex i);
 
-private:   
+private:
   NumValue m_nums[MAX_NUMERATIONS];
   GraphNum m_numbers[MAX_NUMERATIONS];
 };
@@ -148,9 +147,9 @@ protected:
    */
   inline void ClearUnusedNumerations (Numbered *numbered)
   /**
-   * \brief MUST BE implemented in inhereted class 
+   * \brief MUST BE implemented in inhereted class
    */
-  virtual void ClearNumerationsInObjects() = 0;  
+  virtual void ClearNumerationsInObjects() = 0;
 
 private:
   NumValue m_nums[MAX_NUMERATIONS];

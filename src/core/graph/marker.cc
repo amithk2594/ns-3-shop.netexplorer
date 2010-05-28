@@ -143,15 +143,15 @@ MarkerManager::FindNextFreeValue (void)
   MarkerValue res = last;
 
   while (IsValueBusy (res))
-  {
-    if (res == GRAPH_MARKER_LAST)
-      {
-        assert<MarkerErrorType> (!reached_limit, M_ERROR_OUT_OF_VALUES);
-        ClearMarkersInObjects ();
-        reached_limit = true;
-      }
+    {
+      if (res == GRAPH_MARKER_LAST)
+        {
+          assert<MarkerErrorType> (!reached_limit, M_ERROR_OUT_OF_VALUES);
+          ClearMarkersInObjects ();
+          reached_limit = true;
+        }
       res = NextValue();
-  }
+    }
   return res;
 }
 
@@ -160,9 +160,8 @@ MarkerManager::ClearUnusedMarkers (Marked *marked) const
 {
   for (MarkerIndex i = 0; i < MAX_GRAPH_MARKERS; i++)
     {
-      if (!m_isused[i]) marked->clear (i);
+      if (!m_isused[i]) marked->Clear (i);
     }
 }
 
 }; // namespace graph
-

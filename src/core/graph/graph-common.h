@@ -52,7 +52,7 @@ enum GraphDir
 revDir (GraphDir dir)
 {
     graphassert( GRAPH_DIRS_NUM == 2);
-    return ( dir == GRAPH_DIR_UP)? GRAPH_DIR_DOWN: GRAPH_DIR_UP; 
+    return ( dir == GRAPH_DIR_UP)? GRAPH_DIR_DOWN: GRAPH_DIR_UP;
 }
 */
 
